@@ -9,16 +9,22 @@ import Logo from "../components/Icons/Logo";
 import Modal from "../components/Modal";
 import cloudinary from "../lib/cloudinary";
 import getBase64ImageUrl from "../utils/generateBlurPlaceholder";
-import type { ImageProps } from "../utils/types";
+import type { ItemProps } from "../utils/types";
 import { useLastViewedPhoto } from "../utils/useLastViewedPhoto";
 import { getAllItems } from "../lib/dao/item.dao";
 import dbConnect from "../lib/mongodb";
+import Item from "../components/Item";
 
-const Home: NextPage = ({ images }: { images: ImageProps[] }) => {
+const Home: NextPage = ({
+  items,
+  appName,
+}: {
+  items: Array<ItemProps>;
+  appName: string;
+}) => {
   const router = useRouter();
   const { photoId } = router.query;
   const [lastViewedPhoto, setLastViewedPhoto] = useLastViewedPhoto();
-  const appName = "Pepe's pizza";
 
   const lastViewedPhotoRef = useRef<HTMLAnchorElement>(null);
 
@@ -52,30 +58,19 @@ const Home: NextPage = ({ images }: { images: ImageProps[] }) => {
               Tastes better than cardboard!
             </p>
           </div>
-          {images.map(({ id, public_id, format, blurDataUrl }) => (
-            <Link
-              key={id}
-              href={`/?photoId=${id}`}
-              as={`/p/${id}`}
-              ref={id === Number(lastViewedPhoto) ? lastViewedPhotoRef : null}
-              shallow
+          {items.map(({ _id, name, prices, cloudId, description }) => (
+            <li
               className="after:content group relative mb-5 block w-full cursor-zoom-in after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:shadow-highlight"
+              key={_id}
             >
-              <Image
-                alt="Next.js Conf photo"
-                className="transform rounded-lg brightness-90 transition will-change-auto group-hover:brightness-110"
-                style={{ transform: "translate3d(0, 0, 0)" }}
-                placeholder="blur"
-                blurDataURL={blurDataUrl}
-                src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/c_scale,w_720/${public_id}.${format}`}
-                width={720}
-                height={480}
-                sizes="(max-width: 640px) 100vw,
-                  (max-width: 1280px) 50vw,
-                  (max-width: 1536px) 33vw,
-                  25vw"
+              <Item
+                _id={_id}
+                name={name}
+                prices={prices}
+                description={description}
+                cloudId={cloudId}
               />
-            </Link>
+            </li>
           ))}
         </div>
       </main>
@@ -86,50 +81,55 @@ const Home: NextPage = ({ images }: { images: ImageProps[] }) => {
 export default Home;
 
 export async function getStaticProps() {
-  const defaultImageId = "65c7820b4136e676ca8fe53f49735dcc";
-
+  const appName = process.env.APP_NAME;
   await dbConnect();
-  const items = await getAllItems();
+  const items = (await getAllItems()).map((doc) => {
+    let jsonDoc = doc.toJSON({ flattenObjectIds: true });
+    jsonDoc["cloudId"] = jsonDoc.image ? jsonDoc.image.cloudId : null;
+    return jsonDoc;
+  });
+
   console.log(items);
   // const results = await cloudinary.v2.search
   //   .expression(`folder:${process.env.CLOUDINARY_FOLDER}/*`)
   //   .sort_by("public_id", "desc")
   //   .max_results(400)
   //   .execute();
-  let assetIds: Array<string> = [defaultImageId];
-  for (let item of items) {
-    if (item.image?.cloudId) {
-      assetIds.push(item.image.cloudId);
-    }
-  }
-  const results = await cloudinary.v2.api.resources_by_asset_ids(assetIds);
-  console.log("!!!!! RES\n", results);
-  let reducedResults: ImageProps[] = [];
-
-  let i = 0;
-  for (let result of results.resources) {
-    reducedResults.push({
-      id: i,
-      height: result.height,
-      width: result.width,
-      public_id: result.public_id,
-      format: result.format,
-    });
-    i++;
-  }
-
-  const blurImagePromises = results.resources.map((image: ImageProps) => {
-    return getBase64ImageUrl(image);
-  });
-  const imagesWithBlurDataUrls = await Promise.all(blurImagePromises);
-
-  for (let i = 0; i < reducedResults.length; i++) {
-    reducedResults[i].blurDataUrl = imagesWithBlurDataUrls[i];
-  }
+  // let assetIds: Array<string> = [];
+  // for (let item of items) {
+  //   if (item.image?.cloudId) {
+  //     assetIds.push(item.image.cloudId);
+  //   }
+  // }
+  // const results = await cloudinary.v2.api.resources_by_asset_ids(assetIds);
+  // console.log("!!!!! RES\n", results);
+  // let reducedResults: ImageProps[] = [];
+  //
+  // let i = 0;
+  // for (let result of results.resources) {
+  //   reducedResults.push({
+  //     id: i,
+  //     height: result.height,
+  //     width: result.width,
+  //     public_id: result.public_id,
+  //     format: result.format,
+  //   });
+  //   i++;
+  // }
+  //
+  // const blurImagePromises = results.resources.map((image: ImageProps) => {
+  //   return getBase64ImageUrl(image);
+  // });
+  // const imagesWithBlurDataUrls = await Promise.all(blurImagePromises);
+  //
+  // for (let i = 0; i < reducedResults.length; i++) {
+  //   reducedResults[i].blurDataUrl = imagesWithBlurDataUrls[i];
+  // }
 
   return {
     props: {
-      images: reducedResults,
+      appName,
+      items,
     },
   };
 }

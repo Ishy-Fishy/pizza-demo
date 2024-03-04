@@ -13,13 +13,13 @@ export interface IItem {
   // possibleToppings: Array<IPrice>  Array //could be more flexible and add extra toppings as an extra array key
   description: string;
   image?: {
-    cloudId?: string;
+    cloudId?: string; // cloudinary public_id
     staticUrl?: string;
   };
 }
 
 export interface IOrderItem {
-  selectedPrice: number;
+  selectedTag: TPriceTag;
   id: string;
   document?: Document;
 }

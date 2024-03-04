@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { IItem } from "../../lib/models/item.model";
-import { getAllItems } from "../../lib/dao/item.dao";
+import { IItem } from "../../../lib/models/item.model";
+import { getAllItems } from "../../../lib/dao/item.dao";
 
 type ResponseData = {
   items: Array<IItem>;

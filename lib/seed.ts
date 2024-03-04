@@ -10,19 +10,19 @@ const SeededItems: Array<IItem> = [
     ],
     description: "Pepe's finest",
     image: {
-      cloudId: "b7dfa0be30ddcdecb6c0c5c2ffd69f16",
+      cloudId: "pizza/tvp94octcywfodb5oifd",
     },
   },
   {
-    name: "Bacon Something",
+    name: "Bacon pizza",
     prices: [
       { tag: "small", amount: 20 },
       { tag: "medium", amount: 35 },
       { tag: "small", amount: 50 },
     ],
-    description: "Something is better than nothing",
+    description: "Which part of bacon pizza you don't get?",
     image: {
-      cloudId: "95adccaebe1d6225508e1c93a9c5fd95",
+      cloudId: "pizza/zl8zre3mlz5wfhy4gcji",
     },
   },
   {
@@ -35,7 +35,7 @@ const SeededItems: Array<IItem> = [
     ],
     description: "Death by cholesterol",
     image: {
-      cloudId: "95adccaebe1d6225508e1c93a9c5fd95",
+      cloudId: "pizza/zl8zre3mlz5wfhy4gcji",
     },
   },
   {

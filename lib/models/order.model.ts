@@ -1,28 +1,35 @@
 import { Schema, Types, model } from "mongoose";
 import { IItem } from "./item.model";
 
-interface TakeoutOption {
+export type TOrderStatus =
+  | "pending"
+  | "confirmed"
+  | "cancelled"
+  | "ready"
+  | "delivering"
+  | "done";
+
+export const defaultOrderStatus: TOrderStatus = "pending";
+
+export type TOrderType = "takeout" | "delivery";
+
+export interface IOrderMetadataTakeout {
   phone: String;
   estimatedTime?: Date;
 }
 
-interface DeliveryOption extends TakeoutOption {
+export interface IOrderMetadataDelivery extends IOrderMetadataTakeout {
   address: String;
 }
 
 export interface IOrder {
-  items: [IItem];
+  items: Array<string | IItem>;
+  trackingId: string;
   total: number;
   comments?: string;
-  status:
-    | "pending"
-    | "confirmed"
-    | "cancelled"
-    | "ready"
-    | "delivering"
-    | "done";
-  type: "takeout" | "delivery";
-  metadata: TakeoutOption | DeliveryOption;
+  status: TOrderStatus;
+  type: TOrderType;
+  metadata: IOrderMetadataTakeout | IOrderMetadataDelivery;
 }
 
 const TakeoutSchemaObj = {
@@ -39,6 +46,7 @@ const OrderSchema = new Schema<IOrder>(
   {
     items: [{ type: Types.ObjectId, ref: "Item", required: true }],
     total: { type: Number, required: true },
+    trackingId: { type: String, required: true },
     comments: String,
     status: {
       type: String,

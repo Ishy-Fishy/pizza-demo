@@ -1,4 +1,6 @@
 /* eslint-disable no-unused-vars */
+import { IItem } from "../lib/models/item.model";
+
 export interface ImageProps {
   id: number;
   height: number;
@@ -16,4 +18,9 @@ export interface SharedModalProps {
   closeModal: () => void;
   navigation: boolean;
   direction?: number;
+}
+
+export interface ItemProps extends IItem {
+  _id: string;
+  cloudId?: string;
 }
