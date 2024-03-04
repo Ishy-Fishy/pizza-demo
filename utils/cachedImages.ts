@@ -1,4 +1,4 @@
-import cloudinary from "./cloudinary";
+import cloudinary from "../lib/cloudinary";
 
 let cachedResults;
 
